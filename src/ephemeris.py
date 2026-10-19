@@ -270,6 +270,9 @@ def satposs(obs, nav):
             trace(2, 'No broadcast ephemeris: sat=%d\n' % sat)
             continue
         svh[i] = eph.svh
+        if eph.svh != 0:
+            trace(2, 'Unhealthy satellite excluded: sat=%d svh=%d\n' % (sat, eph.svh))
+            continue
         # satellite clock bias by broadcast ephemeris
         dt = ephclk(t, eph)
         t = timeadd(t, -dt)

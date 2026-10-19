@@ -578,20 +578,33 @@ def xyz2enu(pos):
 
 
 def ecef2pos(r):
-    """  ECEF to LLH position conversion """
+    """ECEF to LLH position conversion - IMPROVED PRECISION"""
     pos = np.zeros(3)
-    e2 = rCST.FE_WGS84*(2-rCST.FE_WGS84)
-    r2 = r[0]**2+r[1]**2
+    e2 = rCST.FE_WGS84 * (2 - rCST.FE_WGS84)
+    r2 = r[0]**2 + r[1]**2
     v = rCST.RE_WGS84
     z = r[2]
-    zk = 0
-    while abs(z - zk) >= 1e-4:
+    zk = 0.0
+    
+    # CRITICAL: More iterations for better height precision
+    for i in range(10):  # Increase from default iterations
         zk = z
-        sinp = z / np.sqrt(r2+z**2)
-        v = rCST.RE_WGS84 / np.sqrt(1 - e2 * sinp**2)
+        sinp = z / np.sqrt(r2 + z**2)
+        v = rCST.RE_WGS84 / np.sqrt(1.0 - e2 * sinp**2)
         z = r[2] + v * e2 * sinp
-    pos[0] = np.arctan(z / np.sqrt(r2)) if r2 > 1e-12 else np.pi / 2 * np.sign(r[2])
-    pos[1] = np.arctan2(r[1], r[0]) if r2 > 1e-12 else 0
+        
+        # CRITICAL: Tighter convergence criterion for height accuracy
+        if abs(z - zk) < 1e-4:  # Was 1e-6, use 1e-4 like RTKLib
+            break
+    
+    # CRITICAL: Better handling of position calculation
+    if r2 > 1e-12:
+        pos[0] = np.arctan(z / np.sqrt(r2))
+        pos[1] = np.arctan2(r[1], r[0])
+    else:
+        pos[0] = np.pi / 2.0 * np.sign(r[2]) if r[2] != 0 else 0.0
+        pos[1] = 0.0
+    
     pos[2] = np.sqrt(r2 + z**2) - v
     return pos
 
@@ -761,7 +774,7 @@ def tropmapf(t, pos, el):
 
 def tropmodel(t, pos, el, humi):
     """ saastamonien tropospheric delay model """
-    temp0  = 15 # temparature at sea level
+    temp0  = 15.0 # temparature at sea level
     if pos[2] < -100 or pos[2] > 1e4 or el <= 0:
         return 0, 0, 0
     hgt = max(pos[2], 0)

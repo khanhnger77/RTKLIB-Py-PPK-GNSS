@@ -14,7 +14,7 @@ basepos = []  # default to not specified here
 ######## specify input files ######################################
 
 # cell phone example from 2021 Google Smartphone Decimeter Challenge
-# datadir = r'C:\gps\python\rtklib-py\data\phone'
+# datadir = '../data/phone'
 # navfile = 'nav_1350.nav'
 # rovfile = 'Pixel4_GnssLog.obs'
 # basefile = 'slac1350.obs'
@@ -46,10 +46,6 @@ fp_stat = open(statfile, 'w')
 if trace_level > 0:
     trcfile = os.path.join(datadir, rovfile[:-4] + '.trace')
     sys.stderr = open(trcfile, "w")
-    
-# Read config file
-shutil.copyfile(cfgfile, '__ppk_config.py')
-
 
 # init solution
 os.chdir(datadir)

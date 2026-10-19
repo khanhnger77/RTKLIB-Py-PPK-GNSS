@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Config copied at runtime by run_ppk.py
+src/__ppk_config.py
+
+# Generated PPK outputs (large)
+*.trace
+*.pos.stat
+*_events.pos
+forward.pos
+backward.pos
+combined.pos
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
